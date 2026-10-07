@@ -180,12 +180,12 @@ const CheckoutModal = ({ atraccion, isOpen, onClose }) => {
     }
   };
 
+  const payLabel = `${paymentMethod === 'PAYPAL' ? 'Pagar con PayPal' : 'Pagar con tarjeta'} · ${totalDisplay}`;
+
   const totalDisplay =
     reservation?.total_price?.total != null
       ? formatPrice(reservation.total_price.total)
       : formatPrice(subtotal);
-
-  const payLabel = `${paymentMethod === 'PAYPAL' ? 'Pagar con PayPal' : 'Pagar con tarjeta'} · ${totalDisplay}`;
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
