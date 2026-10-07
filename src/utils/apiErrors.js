@@ -2,14 +2,6 @@
  * Normaliza errores NestJS (HttpExceptionFilter) y ValidationPipe.
  * Formato backend: { status, error, details, path, timestamp }
  */
-
-export class ReservationValidationError extends Error {
-  constructor(message) {
-    super(message);
-    this.name = 'ReservationValidationError';
-  }
-}
-
 export function formatApiError(error) {
   if (!error) return 'Ocurrió un error inesperado.';
 

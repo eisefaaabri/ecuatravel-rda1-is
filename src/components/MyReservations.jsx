@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { v4 as uuidv4 } from 'uuid';
 import { useAuth } from '../context/AuthContext';
 import { AtraccionesService } from '../services/api';
 import { formatPrice, normalizeAtraccion, attractionThumbUrl } from '../utils/atraccion';
@@ -275,7 +274,7 @@ const MyReservations = () => {
     if (cancellingId) return;
     setCancellingId(r.reservation_id);
     setCancelError(null);
-    const idempotencyKey = uuidv4();
+    const idempotencyKey = crypto.randomUUID();
     AtraccionesService.cancelReservation(r.reservation_id, reason.trim(), idempotencyKey)
       .then(() => {
         setNotice('Reserva cancelada correctamente.');

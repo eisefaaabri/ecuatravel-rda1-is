@@ -1,9 +1,8 @@
 import React, { useEffect, useId, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { v4 as uuidv4 } from 'uuid';
 import { useAuth } from '../context/AuthContext';
 import { AtraccionesService } from '../services/api';
-import { formatApiError, ReservationValidationError } from '../utils/apiErrors';
+import { formatApiError } from '../utils/apiErrors';
 import { formatPrice, normalizeAtraccion } from '../utils/atraccion';
 import AuthLoginPanel from './AuthLoginPanel';
 
@@ -52,7 +51,7 @@ const CheckoutModal = ({ atraccion, isOpen, onClose }) => {
 
   useEffect(() => {
     if (!isOpen) return;
-    idempotencyKeyRef.current = uuidv4();
+    idempotencyKeyRef.current = crypto.randomUUID();
     payInFlightRef.current = false;
     setStep(1);
     setError(null);
@@ -114,7 +113,7 @@ const CheckoutModal = ({ atraccion, isOpen, onClose }) => {
   const canReserve = !isLoading && !checkingAvailability && !soldOut && !exceedsCapacity;
 
   const showError = (err) => {
-    if (err instanceof ReservationValidationError) {
+    if (err?.name === 'ReservationValidationError') {
       setError(err.message);
       return;
     }

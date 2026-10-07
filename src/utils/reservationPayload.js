@@ -1,22 +1,26 @@
 import { isUuidV4 } from './jwt';
 
-import { ReservationValidationError } from './apiErrors';
+function throwValidation(msg) {
+  const e = new Error(msg);
+  e.name = 'ReservationValidationError';
+  throw e;
+}
 
 /** Payload alineado con ReservationRequestDto (class-validator / IsInt). */
 export function buildReservationPayload({ date, ticketCount, customerName, customerEmail }) {
   const trimmedDate = String(date ?? '').trim();
   if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmedDate)) {
-    throw new ReservationValidationError('Selecciona una fecha válida (AAAA-MM-DD).');
+    throwValidation('Selecciona una fecha válida (AAAA-MM-DD).');
   }
 
   const tickets = parseInt(String(ticketCount), 10);
   if (!Number.isInteger(tickets) || tickets < 1) {
-    throw new ReservationValidationError('La cantidad de pasajeros debe ser un número entero mayor o igual a 1.');
+    throwValidation('La cantidad de pasajeros debe ser un número entero mayor o igual a 1.');
   }
 
   const name = String(customerName ?? '').trim();
   if (name.length < 2) {
-    throw new ReservationValidationError('Indica el nombre del titular (mínimo 2 caracteres).');
+    throwValidation('Indica el nombre del titular (mínimo 2 caracteres).');
   }
 
   const payload = {
@@ -35,6 +39,6 @@ export function buildReservationPayload({ date, ticketCount, customerName, custo
 
 export function assertAtraccionIdUuid(atraccionId) {
   if (!isUuidV4(atraccionId)) {
-    throw new ReservationValidationError('ID de atracción inválido (se esperaba UUID v4).');
+    throwValidation('ID de atracción inválido (se esperaba UUID v4).');
   }
 }
