@@ -1,5 +1,5 @@
 import React from 'react';
-import heroLocal from '../assets/hero.png';
+import heroImage from '../assets/hero-andes.jpg';
 import { IconChevronRight } from './icons/EcuadorIcons';
 
 const HERO_FALLBACK =
@@ -16,18 +16,15 @@ const HeroSection = () => {
       aria-labelledby="hero-heading"
     >
       <div className="absolute inset-0 z-0">
-        <picture>
-          <source srcSet={`${HERO_FALLBACK}&fm=webp`} type="image/webp" />
-          <img
-            src={heroLocal || HERO_FALLBACK}
-            alt="Volcanes andinos y niebla sobre la cordillera ecuatoriana"
-            className="w-full h-full object-cover object-center scale-105 md:scale-100"
-            loading="eager"
-            fetchPriority="high"
-            width={1920}
-            height={1080}
-          />
-        </picture>
+        <img
+          src={heroImage || HERO_FALLBACK}
+          alt="Volcanes andinos y niebla sobre la cordillera ecuatoriana"
+          className="w-full h-full object-cover object-center scale-105 md:scale-100"
+          loading="eager"
+          fetchPriority="high"
+          width={1920}
+          height={1080}
+        />
         <div
           className="absolute inset-0 bg-gradient-to-tr from-ec-ink/85 via-ec-pacific/50 to-ec-andes/40"
           aria-hidden="true"
