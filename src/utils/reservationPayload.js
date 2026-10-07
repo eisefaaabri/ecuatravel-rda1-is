@@ -1,11 +1,6 @@
 import { isUuidV4 } from './jwt';
 
-export class ReservationValidationError extends Error {
-  constructor(message) {
-    super(message);
-    this.name = 'ReservationValidationError';
-  }
-}
+import { ReservationValidationError } from './apiErrors';
 
 /** Payload alineado con ReservationRequestDto (class-validator / IsInt). */
 export function buildReservationPayload({ date, ticketCount, customerName, customerEmail }) {
