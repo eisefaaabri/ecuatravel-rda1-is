@@ -1,0 +1,181 @@
+@import "tailwindcss";
+
+/* Paleta Ecuador: andes, pacífico, tierra, volcán */
+@theme {
+  --color-ec-andes: #1a5c45;
+  --color-ec-andes-light: #2d8a66;
+  --color-ec-pacific: #0e4d6e;
+  --color-ec-pacific-light: #1a6f96;
+  --color-ec-earth: #8b6914;
+  --color-ec-sand: #e8dcc4;
+  --color-ec-volcano: #c45c26;
+  --color-ec-volcano-hover: #a34a1c;
+  --color-ec-mist: #e2ebe8;
+  --color-ec-ink: #0f1f1a;
+  --color-ec-slate: #4a5f58;
+
+  /* Compatibilidad con clases existentes */
+  --color-ec-green: #1a5c45;
+  --color-ec-blue: #0e4d6e;
+  --color-ec-orange: #c45c26;
+
+  --shadow-ec-card: 0 4px 24px -4px rgb(15 31 26 / 0.12);
+  --shadow-ec-hero: 0 25px 50px -12px rgb(14 77 110 / 0.35);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  body {
+    background-color: #f7f9f8;
+    color: var(--color-ec-ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-ec-volcano);
+    outline-offset: 2px;
+  }
+
+  .skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 100;
+    padding: 0.75rem 1.25rem;
+    background: var(--color-ec-ink);
+    color: white;
+    font-weight: 700;
+    border-radius: 0 0 0.5rem 0.5rem;
+  }
+
+  .skip-link:focus {
+    left: 1rem;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-xl font-bold text-white transition-colors;
+    background: linear-gradient(135deg, var(--color-ec-volcano), #d97706);
+    min-height: 44px;
+    min-width: 44px;
+    box-shadow: var(--shadow-ec-card);
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, var(--color-ec-volcano-hover), #b45309);
+  }
+
+  .btn-primary:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-xl font-bold border-2 min-h-11 min-w-11 px-4 transition-colors;
+    border-color: var(--color-ec-mist);
+    color: var(--color-ec-pacific);
+    background: white;
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--color-ec-pacific-light);
+    background: #f0f7f5;
+  }
+
+  .section-grid {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .catalog-grid {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 768px) {
+    .catalog-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .catalog-grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+    }
+  }
+
+  .detail-grid {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 1024px) {
+    .detail-grid {
+      grid-template-columns: minmax(0, 1fr) 340px;
+      align-items: start;
+    }
+  }
+
+  .prose-disclosure details {
+    @apply border border-ec-mist rounded-xl overflow-hidden bg-white;
+  }
+
+  .prose-disclosure summary {
+    @apply cursor-pointer list-none px-5 py-4 font-bold text-ec-ink flex items-center justify-between gap-3 min-h-11;
+  }
+
+  .prose-disclosure summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .prose-disclosure details[open] summary {
+    @apply border-b border-ec-mist bg-ec-mist/30;
+  }
+
+  .prose-disclosure .disclosure-body {
+    @apply px-5 py-4 text-sm text-ec-slate leading-relaxed;
+  }
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in-up 0.35s ease-out;
+}
