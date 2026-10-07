@@ -75,8 +75,8 @@ api.interceptors.response.use(
 );
 
 export const AtraccionesService = {
-  getAll: async (params) => {
-    const response = await api.get('/atracciones', { params });
+  getAll: async (params, customHeaders = {}) => {
+    const response = await api.get('/atracciones', { params, headers: customHeaders });
     return response.data;
   },
   getById: async (id) => {

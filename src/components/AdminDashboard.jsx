@@ -21,7 +21,10 @@ const AdminDashboard = () => {
     setLoading(true);
     setError(null);
     try {
-      const payload = await AtraccionesService.getAll({ page: 1, limit: PAGE_SIZE });
+      const payload = await AtraccionesService.getAll(
+        { page: 1, limit: PAGE_SIZE },
+        { 'Cache-Control': 'no-cache', Pragma: 'no-cache' }
+      );
       const list = Array.isArray(payload?.data) ? payload.data : Array.isArray(payload) ? payload : [];
       setItems(list);
     } catch (err) {
