@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { formatPrice, normalizeAtraccion } from '../utils/atraccion';
 import AuthLoginPanel from './AuthLoginPanel';
 import AdminAttractionModal from './AdminAttractionModal';
+import AdminUsers from './AdminUsers';
 
 const PAGE_SIZE = 100;
 
@@ -16,6 +17,7 @@ const AdminDashboard = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
+  const [activeTab, setActiveTab] = useState('catalog'); // 'catalog' o 'users'
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -104,23 +106,31 @@ const AdminDashboard = () => {
     <div className="section-grid py-10 md:py-14">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-ec-ink">Panel B2B · Atracciones</h1>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-ec-ink">Panel B2B</h1>
           <p className="text-ec-slate text-sm mt-1">
-            Gestiona el catálogo. Sesión: <strong>{session?.email}</strong>
+            Gestiona la plataforma. Sesión: <strong>{session?.email}</strong>
           </p>
         </div>
+        <div className="flex bg-white rounded-xl shadow-sm">
+          <button type="button" onClick={() => setActiveTab('catalog')} className={`px-4 py-2 font-bold rounded-l-xl border border-ec-mist ${activeTab === 'catalog' ? 'bg-ec-mist text-ec-ink' : 'bg-white text-ec-slate hover:bg-ec-mist/50'}`}>Catálogo</button>
+          <button type="button" onClick={() => setActiveTab('users')} className={`px-4 py-2 font-bold rounded-r-xl border border-l-0 border-ec-mist ${activeTab === 'users' ? 'bg-ec-mist text-ec-ink' : 'bg-white text-ec-slate hover:bg-ec-mist/50'}`}>Usuarios</button>
+        </div>
         <div className="flex flex-wrap gap-3">
-          <input
-            type="search"
-            placeholder="Buscar por nombre, aeropuerto o estado"
-            className="w-full sm:w-64 border border-ec-mist rounded-xl px-3 py-3 bg-white"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            aria-label="Buscar atracciones"
-          />
-          <button type="button" onClick={openCreate} className="btn-primary px-5 py-3 shrink-0">
-            Nueva atracción
-          </button>
+          {activeTab === 'catalog' && (
+            <>
+              <input
+                type="search"
+                placeholder="Buscar por nombre, aeropuerto o estado"
+                className="w-full sm:w-64 border border-ec-mist rounded-xl px-3 py-3 bg-white"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                aria-label="Buscar atracciones"
+              />
+              <button type="button" onClick={openCreate} className="btn-primary px-5 py-3 shrink-0">
+                Nueva atracción
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -130,7 +140,9 @@ const AdminDashboard = () => {
         </div>
       )}
 
-      {loading ? (
+      {activeTab === 'users' ? (
+        <AdminUsers />
+      ) : loading ? (
         <div className="animate-pulse space-y-3" role="status" aria-live="polite">
           {[0, 1, 2, 3].map((i) => (
             <div key={i} className="h-14 bg-ec-mist rounded-xl" />

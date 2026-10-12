@@ -193,6 +193,21 @@ export const AuthService = {
     });
     return response.data;
   },
+
+  getAllUsers: async () => {
+    const response = await api.get('/auth/users');
+    return response.data;
+  },
+
+  createUser: async (userData) => {
+    const response = await api.post('/auth/users', userData);
+    return response.data;
+  },
+
+  updateUserRole: async (id, rol) => {
+    const response = await api.patch(`/auth/users/${id}/role`, { rol });
+    return response.data;
+  },
 };
 
 export default api;
