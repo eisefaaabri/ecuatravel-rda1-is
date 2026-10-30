@@ -207,7 +207,7 @@ const CheckoutModal = ({ atraccion, isOpen, onClose }) => {
         <div className="flex items-center justify-between gap-4 border-b border-ec-mist bg-gradient-to-r from-ec-mist/50 to-white px-5 py-4 md:px-6">
           <div>
             <p className="text-xs font-bold uppercase tracking-wide text-ec-slate">Checkout express</p>
-            <h2 id={titleId} className="text-lg md:text-xl font-extrabold text-ec-ink truncate pr-2">
+            <h2 id={titleId} className="text-2xl md:text-3xl leading-tight text-ec-ink truncate pr-2">
               {a.nombre}
             </h2>
           </div>

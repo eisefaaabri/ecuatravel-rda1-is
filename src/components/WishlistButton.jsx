@@ -50,7 +50,7 @@ const WishlistButton = ({ atraccionId, className = '' }) => {
   };
 
   return (
-    <div className={`relative inline-flex ${className}`}>
+    <div className={`inline-flex ${/\b(absolute|fixed|sticky)\b/.test(className) ? '' : 'relative'} ${className}`}>
       <button
         type="button"
         onClick={handleClick}
@@ -59,10 +59,10 @@ const WishlistButton = ({ atraccionId, className = '' }) => {
         aria-label={active ? 'Quitar tour de favoritos' : 'Guardar tour en favoritos'}
         title={active ? 'Quitar de favoritos' : 'Guardar en favoritos'}
         className={[
-          'inline-flex items-center justify-center rounded-full p-2 shadow-sm transition-all',
+          'inline-flex h-11 w-11 items-center justify-center rounded-full shadow-sm transition-[background-color,color,transform] duration-150 ease-out-ui active:scale-90',
           active
-            ? 'bg-ec-volcano text-white hover:bg-ec-volcano/90'
-            : 'bg-white/95 text-ec-slate hover:text-ec-volcano border border-ec-mist',
+            ? 'bg-ec-volcano text-white hover:bg-ec-volcano-hover'
+            : 'bg-ec-paper/95 text-ec-ink hover:text-ec-volcano',
           busy || loading ? 'opacity-60 cursor-wait' : 'cursor-pointer',
         ].join(' ')}
       >

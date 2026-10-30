@@ -20,15 +20,15 @@ const CheckoutCard = ({
       className={`checkout-card ${className}`}
       aria-labelledby={`checkout-title-${a.id}`}
     >
-      <div className="rounded-2xl border border-ec-mist/80 bg-white shadow-ec-card overflow-hidden">
+      <div className="rounded-3xl border border-ec-ink/8 bg-white shadow-ec-card overflow-hidden">
         <div className={`${compact ? 'p-4' : 'p-5 md:p-6'} space-y-4`}>
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-ec-pacific/80">
+              <p className="eyebrow text-[11px] text-ec-slate">
                 Precio por persona
               </p>
               <p
-                className="text-3xl md:text-4xl font-extrabold text-ec-ink tabular-nums"
+                className="font-display text-5xl leading-none mt-1 text-ec-ink tabular-nums"
                 aria-label={`Precio ${formatPrice(a.precio_base)}`}
               >
                 {formatPrice(a.precio_base)}
@@ -42,7 +42,7 @@ const CheckoutCard = ({
             )}
           </div>
 
-          <ul className="text-sm text-ec-slate space-y-1.5" aria-label="Beneficios de reserva">
+          <ul className="text-sm text-ec-slate space-y-2 border-t border-ec-ink/8 pt-4" aria-label="Beneficios de reserva">
             <li className="flex gap-2">
               <span className="text-ec-volcano" aria-hidden="true">✓</span>
               Confirmación inmediata vía API

@@ -78,7 +78,7 @@ const AdminDashboard = () => {
     return (
       <div className="section-grid py-12 md:py-16">
         <div className="max-w-lg mx-auto">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-ec-ink mb-2">Panel B2B</h1>
+          <h1 className="text-4xl md:text-5xl leading-tight text-ec-ink mb-2">Panel B2B</h1>
           <p className="text-ec-slate mb-6">
             Inicia sesión con una cuenta administradora para gestionar el catálogo.
           </p>
@@ -91,7 +91,7 @@ const AdminDashboard = () => {
   if (!isAdmin) {
     return (
       <div className="section-grid py-20 text-center">
-        <h1 className="text-2xl font-extrabold text-ec-ink mb-3">Sin permisos</h1>
+        <h1 className="text-4xl leading-tight text-ec-ink mb-3">Sin permisos</h1>
         <p className="text-ec-slate mb-6">
           La cuenta <strong>{session?.email}</strong> no tiene rol de administrador.
         </p>
@@ -106,7 +106,7 @@ const AdminDashboard = () => {
     <div className="section-grid py-10 md:py-14">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-ec-ink">Panel B2B</h1>
+          <h1 className="text-4xl md:text-5xl leading-tight text-ec-ink">Panel B2B</h1>
           <p className="text-ec-slate text-sm mt-1">
             Gestiona la plataforma. Sesión: <strong>{session?.email}</strong>
           </p>

@@ -93,7 +93,7 @@ const PayReservationModal = ({ reservation, atraccion, isOpen, onClose, onSucces
         <div className="flex items-center justify-between gap-4 border-b border-ec-mist px-5 py-4">
           <div className="min-w-0">
             <p className="text-xs font-bold uppercase tracking-wide text-ec-slate">Pagar reserva</p>
-            <h2 id={titleId} className="text-lg font-extrabold text-ec-ink truncate">
+            <h2 id={titleId} className="text-2xl md:text-3xl leading-tight text-ec-ink truncate">
               {atraccion?.nombre ?? 'Reserva'}
             </h2>
           </div>

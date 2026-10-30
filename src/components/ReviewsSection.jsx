@@ -103,7 +103,7 @@ const ReviewsSection = ({ atraccionId }) => {
   return (
     <section aria-labelledby="reviews-heading" className="mt-10">
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-        <h2 id="reviews-heading" className="text-xl font-extrabold text-ec-ink">
+        <h2 id="reviews-heading" className="text-3xl text-ec-ink">
           Reseñas
         </h2>
         {reviews.length > 0 && (

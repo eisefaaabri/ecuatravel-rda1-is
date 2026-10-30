@@ -111,7 +111,7 @@ const AdminUserModal = ({ isOpen, onClose, onSaved }) => {
         {/* Header */}
         <div className="flex items-center justify-between gap-4 border-b border-ec-mist bg-gradient-to-r from-ec-mist/50 to-white px-5 py-4 md:px-6">
           <div>
-            <h2 id={titleId} className="text-xl font-bold text-ec-ink">
+            <h2 id={titleId} className="text-2xl md:text-3xl leading-tight text-ec-ink">
               Crear Nuevo Usuario
             </h2>
             <p className="text-xs text-ec-slate mt-0.5">

@@ -3,14 +3,13 @@ import { Link, useParams } from 'react-router-dom';
 import { AtraccionesService } from '../services/api';
 import {
   normalizeAtraccion,
-  formatPrice,
   attractionImageUrl,
 } from '../utils/atraccion';
 import CheckoutCard from './CheckoutCard';
 import CheckoutModal from './CheckoutModal';
 import WishlistButton from './WishlistButton';
 import ReviewsSection from './ReviewsSection';
-import { IconGlobe, IconCalendar } from './icons/EcuadorIcons';
+import { IconGlobe } from './icons/EcuadorIcons';
 
 const parseItinerary = (value) => {
   if (Array.isArray(value)) return value.filter(Boolean);
@@ -53,11 +52,11 @@ const AttractionDetail = () => {
   if (loading) {
     return (
       <div className="section-grid py-16" role="status" aria-live="polite">
-        <div className="animate-pulse space-y-6 max-w-4xl">
-          <div className="h-8 bg-ec-mist rounded w-2/3" />
-          <div className="h-64 bg-ec-mist rounded-2xl" />
-          <div className="h-4 bg-ec-mist rounded w-full" />
-          <div className="h-4 bg-ec-mist rounded w-5/6" />
+        <div className="space-y-6 max-w-4xl" aria-label="Cargando experiencia">
+          <div className="skeleton h-12 rounded-full w-2/3" />
+          <div className="skeleton aspect-[16/9] rounded-3xl" />
+          <div className="skeleton h-4 rounded-full w-full" />
+          <div className="skeleton h-4 rounded-full w-5/6" />
         </div>
       </div>
     );
@@ -78,7 +77,7 @@ const AttractionDetail = () => {
 
   return (
     <article className="pb-16 md:pb-24">
-      <nav className="section-grid py-4 text-sm text-ec-slate" aria-label="Ruta de navegación">
+      <nav className="section-grid pt-6 pb-4 text-sm text-ec-slate" aria-label="Ruta de navegación">
         <ol className="flex flex-wrap items-center gap-2">
           <li>
             <Link to="/" className="hover:text-ec-pacific font-semibold">
@@ -98,14 +97,14 @@ const AttractionDetail = () => {
         </ol>
       </nav>
 
-      <header className="section-grid mb-8 md:mb-10">
-<div className="flex flex-wrap items-center gap-3 mb-3">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-ec-pacific/10 px-3 py-1 text-xs font-bold text-ec-pacific">
+      <header className="section-grid mb-8 md:mb-12 animate-rise">
+        <div className="flex flex-wrap items-center gap-3 mb-4">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-ec-ink/12 px-3 py-1 text-xs font-bold text-ec-ink">
               <IconGlobe className="w-3.5 h-3.5" />
               Salida {a.codigo_aeropuerto}
             </span>
             {a.duracion && (
-              <span className="text-xs font-semibold text-ec-slate">{a.duracion}</span>
+              <span className="eyebrow text-[11px] text-ec-andes">{a.duracion} de experiencia</span>
             )}
             {!isAvailable && (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">
@@ -114,7 +113,7 @@ const AttractionDetail = () => {
             )}
             <WishlistButton atraccionId={a.id} className="ml-auto" />
           </div>
-        <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-ec-ink tracking-tight max-w-4xl">
+        <h1 className="text-[clamp(2.5rem,5.5vw,4.5rem)] leading-[1.02] text-ec-ink max-w-4xl">
           {a.nombre}
         </h1>
         <p className="mt-4 text-lg text-ec-slate max-w-3xl leading-relaxed">
@@ -124,7 +123,7 @@ const AttractionDetail = () => {
 
       <div className="section-grid detail-grid">
         <div className="space-y-8 min-w-0">
-          <figure className="rounded-2xl overflow-hidden shadow-ec-card border border-ec-mist/80 m-0">
+          <figure className="rounded-3xl overflow-hidden bg-ec-mist m-0">
             <img
               src={heroSrc}
               alt={`Imagen principal de la experiencia ${a.nombre}`}
@@ -137,10 +136,10 @@ const AttractionDetail = () => {
           </figure>
 
           <section aria-labelledby="detail-overview">
-            <h2 id="detail-overview" className="text-xl font-extrabold text-ec-ink mb-3">
+            <h2 id="detail-overview" className="text-3xl text-ec-ink mb-3">
               Resumen
             </h2>
-            <p className="text-ec-slate leading-relaxed whitespace-pre-line">{a.descripcion}</p>
+            <p className="text-ec-slate text-[1.05rem] leading-relaxed whitespace-pre-line max-w-prose">{a.descripcion}</p>
           </section>
 
           {(includes.length > 0 || itinerarySteps.length > 0) && (
@@ -149,9 +148,6 @@ const AttractionDetail = () => {
                 <details>
                   <summary>
                     Qué incluye
-                    <span className="text-ec-pacific text-sm font-bold" aria-hidden="true">
-                      Ver
-                    </span>
                   </summary>
                   <div className="disclosure-body">
                     <ul className="list-disc pl-5 space-y-1">
@@ -167,9 +163,6 @@ const AttractionDetail = () => {
                 <details>
                   <summary>
                     Itinerario detallado
-                    <span className="text-ec-pacific text-sm font-bold" aria-hidden="true">
-                      Ver
-                    </span>
                   </summary>
                   <div className="disclosure-body">
                     <ol className="list-decimal pl-5 space-y-2">
@@ -187,9 +180,6 @@ const AttractionDetail = () => {
             <details open>
               <summary>
                 Disponibilidad
-                <span className="text-ec-pacific text-sm font-bold" aria-hidden="true">
-                  Ver
-                </span>
               </summary>
               <div className="disclosure-body">
                 <ul className="space-y-2">
@@ -219,22 +209,9 @@ const AttractionDetail = () => {
           <ReviewsSection atraccionId={a.id} />
         </div>
 
-        <div className="lg:sticky lg:top-24 space-y-4">
+        <div className="lg:sticky lg:top-24 space-y-4 animate-rise" style={{ animationDelay: '120ms' }}>
           <CheckoutCard atraccion={a} onReserve={() => setCheckoutOpen(true)} />
-          <p className="text-xs text-ec-slate text-center px-2">
-            Precio por persona:{' '}
-            <strong className="text-ec-ink">{formatPrice(a.precio_base)}</strong>.
-          </p>
-          {isAvailable ? (
-            <button
-              type="button"
-              onClick={() => setCheckoutOpen(true)}
-              className="btn-secondary w-full min-h-11 py-3 inline-flex justify-center gap-2"
-            >
-              <IconCalendar className="w-4 h-4" />
-              Reservar
-            </button>
-          ) : (
+          {!isAvailable && (
             <div
               className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900"
               role="status"

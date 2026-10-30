@@ -74,7 +74,7 @@ const MyReservations = () => {
   if (!isAuthenticated) {
     return (
       <div className="section-grid py-16 md:py-20 max-w-lg">
-        <h1 className="text-2xl md:text-3xl font-extrabold text-ec-ink">Mis reservas</h1>
+        <h1 className="text-4xl md:text-5xl leading-tight text-ec-ink">Mis reservas</h1>
         <div className="mt-6 rounded-2xl border border-ec-mist bg-white p-6 shadow-ec-card">
           <p className="text-sm text-ec-slate mb-4">
             Inicia sesión para ver tus reservas y su estado de pago.
@@ -88,7 +88,7 @@ const MyReservations = () => {
   return (
     <div className="bg-gradient-to-b from-ec-mist/40 to-transparent pt-8 md:pt-12 pb-16">
       <div className="section-grid">
-        <h1 className="text-2xl md:text-3xl font-extrabold text-ec-ink">Mis reservas</h1>
+        <h1 className="text-4xl md:text-5xl leading-tight text-ec-ink">Mis reservas</h1>
         <p className="mt-2 text-ec-slate">
           Consulta el estado de tus tours y gestiona el pago o la cancelación.
         </p>
@@ -161,7 +161,7 @@ const MyReservations = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-start justify-between gap-2">
                         <div className="min-w-0">
-                          <h2 className="font-extrabold text-ec-ink truncate">
+                          <h2 className="font-sans font-extrabold text-ec-ink truncate">
                             <Link to={`/experiencias/${atr.id}`} className="hover:text-ec-pacific">
                               {atr.nombre}
                             </Link>
