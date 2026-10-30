@@ -7,13 +7,13 @@ const TOKEN_KEY = 'token';
 
 /**
  * URL base de la API.
- * - Dev: VITE_API_URL=/api/v2 (proxy de Vite) o http://localhost:3000/api/v2
+ * - Dev: VITE_API_URL=/api/v2 (proxy de Vite) o http://localhost:3001/api/v2
  * - Prod: definir VITE_API_URL en el build. Sin definir, se usa la URL
  *   relativa /api/v2 (frontend y API tras el mismo proxy/reverse) y se avisa.
  */
 const configuredUrl = import.meta.env.VITE_API_URL;
 const apiBaseURL =
-  configuredUrl || (import.meta.env.PROD ? '/api/v2' : 'http://localhost:3000/api/v2');
+  configuredUrl || (import.meta.env.PROD ? '/api/v2' : 'http://localhost:3001/api/v2');
 
 if (import.meta.env.PROD && !configuredUrl) {
   // eslint-disable-next-line no-console
