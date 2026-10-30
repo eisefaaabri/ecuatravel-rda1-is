@@ -7,7 +7,7 @@ function throwValidation(msg) {
 }
 
 /** Payload alineado con ReservationRequestDto (class-validator / IsInt). */
-export function buildReservationPayload({ date, ticketCount, customerName, customerEmail }) {
+export function buildReservationPayload({ date, time, ticketCount, customerName, customerEmail }) {
   const trimmedDate = String(date ?? '').trim();
   if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmedDate)) {
     throwValidation('Selecciona una fecha válida (AAAA-MM-DD).');
@@ -28,6 +28,11 @@ export function buildReservationPayload({ date, ticketCount, customerName, custo
     ticket_count: tickets,
     customer_name: name,
   };
+
+  const slot = String(time ?? '').trim();
+  if (slot) {
+    payload.time = slot;
+  }
 
   const email = String(customerEmail ?? '').trim();
   if (email) {

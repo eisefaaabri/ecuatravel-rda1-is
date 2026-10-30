@@ -39,6 +39,7 @@ const CheckoutModal = ({ atraccion, isOpen, onClose }) => {
   const [step, setStep] = useState(1);
   const [ticketCount, setTicketCount] = useState(1);
   const [date, setDate] = useState('');
+  const [time, setTime] = useState('');
   const [customerName, setCustomerName] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
   const [reservation, setReservation] = useState(null);
@@ -58,6 +59,7 @@ const CheckoutModal = ({ atraccion, isOpen, onClose }) => {
     setReservation(null);
     setTicketCount(1);
     setDate('');
+    setTime('');
     setCustomerName('');
     setCustomerEmail('');
     setAvailability(null);
@@ -71,13 +73,21 @@ const CheckoutModal = ({ atraccion, isOpen, onClose }) => {
   useEffect(() => {
     if (!isOpen || !a?.id || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
       setAvailability(null);
+      setTime('');
       return;
     }
     let cancelled = false;
     setCheckingAvailability(true);
     AtraccionesService.checkAvailability(a.id, date)
       .then((data) => {
-        if (!cancelled) setAvailability(data);
+        if (cancelled) return;
+        setAvailability(data);
+        // Conserva el turno elegido si sigue con cupo; si no, el primero con cupo.
+        const slots = data?.slots ?? [];
+        setTime((prev) => {
+          if (slots.some((s) => s.time === prev && s.available_spots > 0)) return prev;
+          return (slots.find((s) => s.available_spots > 0) ?? slots[0])?.time ?? '';
+        });
       })
       .catch(() => {
         if (!cancelled) setAvailability(null);
@@ -107,7 +117,13 @@ const CheckoutModal = ({ atraccion, isOpen, onClose }) => {
 
   const ticketsInt = Math.max(1, parseInt(String(ticketCount), 10) || 1);
   const subtotal = a.precio_base * ticketsInt;
-  const availableSpots = availability?.available_spots ?? null;
+  // Cada turno tiene su propio cupo; sin `slots` (API anterior) se usa el total.
+  const slots = availability?.slots ?? null;
+  const selectedSlot = slots?.find((s) => s.time === time) ?? null;
+  const availableSpots = slots
+    ? (selectedSlot?.available_spots ?? null)
+    : (availability?.available_spots ?? null);
+  const scope = selectedSlot ? 'este turno' : 'esta fecha';
   const soldOut = availableSpots != null && availableSpots <= 0;
   const exceedsCapacity = availableSpots != null && ticketsInt > availableSpots;
   const canReserve = !isLoading && !checkingAvailability && !soldOut && !exceedsCapacity;
@@ -127,11 +143,11 @@ const CheckoutModal = ({ atraccion, isOpen, onClose }) => {
       return;
     }
     if (soldOut) {
-      setError('No hay cupos disponibles para la fecha seleccionada.');
+      setError(`No hay cupos disponibles para ${scope}.`);
       return;
     }
     if (exceedsCapacity) {
-      setError(`Solo quedan ${availableSpots} cupos disponibles para esa fecha.`);
+      setError(`Solo quedan ${availableSpots} cupos disponibles para ${scope}.`);
       return;
     }
     setIsLoading(true);
@@ -141,6 +157,7 @@ const CheckoutModal = ({ atraccion, isOpen, onClose }) => {
         a.id,
         {
           date,
+          time: selectedSlot?.time,
           ticketCount: ticketsInt,
           customerName,
           customerEmail,
@@ -306,6 +323,43 @@ const CheckoutModal = ({ atraccion, isOpen, onClose }) => {
                     </div>
                   </div>
 
+                  {slots && slots.length > 0 && (
+                    <fieldset className="flex flex-col gap-1.5">
+                      <legend className="text-sm font-bold text-ec-ink mb-1.5">Turno</legend>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        {slots.map((s) => {
+                          const full = s.available_spots <= 0;
+                          return (
+                            <label
+                              key={s.time}
+                              className={`flex flex-col items-center justify-center min-h-11 rounded-xl border px-3 py-2 text-center transition-colors duration-150 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ec-volcano/40 ${
+                                full
+                                  ? 'border-ec-mist bg-ec-mist/30 text-ec-slate cursor-not-allowed'
+                                  : time === s.time
+                                    ? 'border-ec-volcano bg-ec-volcano/10 text-ec-ink cursor-pointer'
+                                    : 'border-ec-mist bg-white text-ec-ink hover:border-ec-volcano/60 cursor-pointer'
+                              }`}
+                            >
+                              <input
+                                type="radio"
+                                name="res-time"
+                                value={s.time}
+                                checked={time === s.time}
+                                disabled={full}
+                                onChange={() => setTime(s.time)}
+                                className="sr-only"
+                              />
+                              <span className="font-bold tabular-nums">{s.time}</span>
+                              <span className="text-xs">
+                                {full ? 'Agotado' : `${s.available_spots} ${s.available_spots === 1 ? 'cupo' : 'cupos'}`}
+                              </span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </fieldset>
+                  )}
+
                   {date && (
                     <p
                       className={`text-sm font-semibold ${soldOut || exceedsCapacity ? 'text-red-700' : 'text-ec-andes'}`}
@@ -317,10 +371,10 @@ const CheckoutModal = ({ atraccion, isOpen, onClose }) => {
                         : availableSpots == null
                           ? 'Disponibilidad no disponible para esta fecha.'
                           : soldOut
-                            ? 'Sin cupos disponibles para esta fecha.'
+                            ? `Sin cupos disponibles para ${scope}.`
                             : exceedsCapacity
-                              ? `Solo quedan ${availableSpots} cupos para esta fecha.`
-                              : `Cupos disponibles: ${availableSpots}.`}
+                              ? `Solo quedan ${availableSpots} cupos para ${scope}.`
+                              : `Cupos disponibles para ${scope}: ${availableSpots}.`}
                     </p>
                   )}
 
@@ -391,6 +445,12 @@ const CheckoutModal = ({ atraccion, isOpen, onClose }) => {
                         <dt className="text-ec-slate">Fecha del tour</dt>
                         <dd className="font-bold text-ec-ink">{formatDateDisplay(reservation.date)}</dd>
                       </div>
+                      {reservation.time && (
+                        <div className="grid sm:grid-cols-2 gap-1 text-sm">
+                          <dt className="text-ec-slate">Turno</dt>
+                          <dd className="font-bold text-ec-ink tabular-nums">{reservation.time}</dd>
+                        </div>
+                      )}
                       <div className="grid sm:grid-cols-2 gap-1 text-sm">
                         <dt className="text-ec-slate">Pasajeros</dt>
                         <dd className="font-bold text-ec-ink">
