@@ -9,7 +9,7 @@ import AdminCheckin from './AdminCheckin';
 
 const PAGE_SIZE = 100;
 
-const AdminDashboard = () => {
+const AdminDashboard = ({ initialTab = 'catalog' }) => {
   const { isAuthenticated, isAdmin, session, logout } = useAuth();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -18,7 +18,7 @@ const AdminDashboard = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
-  const [activeTab, setActiveTab] = useState('catalog'); // 'catalog', 'checkin' o 'users'
+  const [activeTab, setActiveTab] = useState(initialTab); // 'catalog', 'checkin' o 'users'
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -114,7 +114,7 @@ const AdminDashboard = () => {
         </div>
         <div className="flex bg-white rounded-xl shadow-sm">
           <button type="button" onClick={() => setActiveTab('catalog')} className={`px-4 py-2 font-bold rounded-l-xl border border-ec-mist ${activeTab === 'catalog' ? 'bg-ec-mist text-ec-ink' : 'bg-white text-ec-slate hover:bg-ec-mist/50'}`}>Catálogo</button>
-          <button type="button" onClick={() => setActiveTab('checkin')} className={`px-4 py-2 font-bold border border-l-0 border-ec-mist ${activeTab === 'checkin' ? 'bg-ec-mist text-ec-ink' : 'bg-white text-ec-slate hover:bg-ec-mist/50'}`}>Check-in</button>
+          <button type="button" onClick={() => setActiveTab('checkin')} className={`px-4 py-2 font-bold border border-l-0 border-ec-mist ${activeTab === 'checkin' ? 'bg-ec-mist text-ec-ink' : 'bg-white text-ec-slate hover:bg-ec-mist/50'}`}>Reservas / Check-in</button>
           <button type="button" onClick={() => setActiveTab('users')} className={`px-4 py-2 font-bold rounded-r-xl border border-l-0 border-ec-mist ${activeTab === 'users' ? 'bg-ec-mist text-ec-ink' : 'bg-white text-ec-slate hover:bg-ec-mist/50'}`}>Usuarios</button>
         </div>
         <div className="flex flex-wrap gap-3">

@@ -313,7 +313,8 @@ const App = () => (
             <Route path="/experiencias" element={<CatalogPage />} />
             <Route path="/experiencias/:id" element={<AttractionDetail />} />
             <Route path="/mis-reservas" element={<MyReservations />} />
-            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin" element={<AdminDashboard key="catalog" />} />
+            <Route path="/admin/reservas" element={<AdminDashboard key="reservas" initialTab="checkin" />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </main>

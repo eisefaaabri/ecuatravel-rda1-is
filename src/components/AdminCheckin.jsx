@@ -1,15 +1,15 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { AdminService } from '../services/api';
 
 const hoyEcuador = () =>
   new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Guayaquil' }).format(new Date());
 
+// Estados de asistencia que devuelve el backend (contrato de Booking v3.1).
 const ESTADOS = {
-  PENDIENTE_PAGO: { label: 'Pendiente de pago', className: 'bg-amber-100 text-amber-800' },
-  CONFIRMADA: { label: 'Confirmada', className: 'bg-green-100 text-green-800' },
-  CHECKED_IN: { label: 'Asistió', className: 'bg-ec-andes/15 text-ec-andes' },
-  CANCELADA: { label: 'Cancelada', className: 'bg-red-100 text-red-800' },
-  COMPLETADA: { label: 'Completada', className: 'bg-ec-mist text-ec-slate' },
+  PENDIENTE_ASISTENCIA: { hint: 'Reservada, el turista aún no llega', className: 'bg-amber-100 text-amber-900' },
+  CONFIRMADO_ASISTIDO: { hint: 'El turista llegó al punto de encuentro', className: 'bg-green-100 text-green-800' },
+  CANCELADA: { hint: 'Reserva cancelada', className: 'bg-red-100 text-red-800' },
+  PENDIENTE_PAGO: { hint: 'Reserva web sin pagar', className: 'bg-ec-mist text-ec-slate' },
 };
 
 const AVISO_BOOKING = {
@@ -40,7 +40,7 @@ const CheckinForm = ({ reserva, onDone, onCancel }) => {
     setError(null);
     try {
       const res = await AdminService.checkin(reserva.reservation_id, {
-        documento_identidad: documento.trim(),
+        ...(documento.trim() && { documento_identidad: documento.trim() }),
         asistentes_reales: Number(asistentes) || reserva.tickets,
         ...(codigo.trim() && { codigo_voucher_qr: codigo.trim() }),
         ...(observaciones.trim() && { observaciones: observaciones.trim() }),
@@ -61,11 +61,10 @@ const CheckinForm = ({ reserva, onDone, onCancel }) => {
     <form onSubmit={submit} className="mt-4 grid gap-3 sm:grid-cols-2 border-t border-ec-mist pt-4">
       <div className="flex flex-col gap-1.5">
         <label htmlFor={`doc-${id}`} className="text-sm font-bold text-ec-ink">
-          Documento que presenta
+          Documento que presenta <span className="font-normal text-ec-slate">(opcional)</span>
         </label>
         <input
           id={`doc-${id}`}
-          required
           autoComplete="off"
           inputMode="text"
           pattern="[A-Za-z0-9]{5,20}"
@@ -126,7 +125,7 @@ const CheckinForm = ({ reserva, onDone, onCancel }) => {
           Cancelar
         </button>
         <button type="submit" className="btn-primary px-5 py-2.5" disabled={sending}>
-          {sending ? 'Confirmando…' : 'Confirmar asistencia'}
+          {sending ? 'Confirmando…' : 'Confirmar check-in'}
         </button>
       </div>
     </form>
@@ -139,6 +138,7 @@ const AdminCheckin = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState('');
+  const [query, setQuery] = useState('');
   const [openId, setOpenId] = useState(null);
   const [result, setResult] = useState(null);
 
@@ -146,59 +146,91 @@ const AdminCheckin = () => {
     setLoading(true);
     setError(null);
     try {
-      const payload = await AdminService.getReservations(fecha);
+      const payload = await AdminService.getReservations(query ? { q: query } : { fecha });
       setItems(Array.isArray(payload?.data) ? payload.data : []);
     } catch (err) {
       setError(err?.userMessage || err?.message || 'No se pudieron cargar las reservas.');
     } finally {
       setLoading(false);
     }
-  }, [fecha]);
+  }, [fecha, query]);
 
   useEffect(() => {
     load();
   }, [load]);
 
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return items;
-    return items.filter((r) =>
-      [r.reservation_code, r.titular_nombre, r.titular_documento, r.atraccion]
-        .filter(Boolean)
-        .some((v) => v.toLowerCase().includes(q)),
-    );
-  }, [items, search]);
+  const submitSearch = (e) => {
+    e.preventDefault();
+    setResult(null);
+    setQuery(search.trim());
+  };
 
-  const handleDone = async (reserva, res) => {
+  const clearSearch = () => {
+    setSearch('');
+    setQuery('');
+  };
+
+  const handleDone = (reserva, res) => {
     setOpenId(null);
     setResult({ code: reserva.reservation_code, res });
-    await load();
+    // El estado cambia en pantalla sin esperar a recargar la lista.
+    setItems((prev) =>
+      prev.map((r) =>
+        r.reservation_id === reserva.reservation_id
+          ? { ...r, estado_asistencia: 'CONFIRMADO_ASISTIDO', checkin_en: res.hora_checkin }
+          : r,
+      ),
+    );
   };
 
   return (
     <section aria-labelledby="checkin-title">
-      <div className="flex flex-col sm:flex-row sm:items-end gap-3 mb-5">
+      <div className="flex flex-col md:flex-row md:items-end gap-3 mb-5">
+        <form onSubmit={submitSearch} className="flex flex-col gap-1.5 flex-1" role="search">
+          <label htmlFor="checkin-buscar" className="text-sm font-bold text-ec-ink">
+            Buscar reserva
+          </label>
+          <div className="flex gap-2">
+            <input
+              id="checkin-buscar"
+              type="search"
+              placeholder="Código ECT-XXXXXX, cédula o email"
+              autoComplete="off"
+              className="w-full border border-ec-mist rounded-xl px-3 py-2.5 min-h-11 bg-white"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <button type="submit" className="btn-primary px-5 py-2.5 shrink-0" disabled={!search.trim()}>
+              Buscar
+            </button>
+          </div>
+        </form>
         <div className="flex flex-col gap-1.5">
           <label htmlFor="checkin-fecha" className="text-sm font-bold text-ec-ink">
-            Fecha del tour
+            O ver un día
           </label>
           <input
             id="checkin-fecha"
             type="date"
             className="border border-ec-mist rounded-xl px-3 py-2.5 min-h-11 bg-white"
             value={fecha}
-            onChange={(e) => e.target.value && setFecha(e.target.value)}
+            onChange={(e) => {
+              if (!e.target.value) return;
+              setFecha(e.target.value);
+              clearSearch();
+            }}
           />
         </div>
-        <input
-          type="search"
-          placeholder="Buscar por código, titular o documento"
-          aria-label="Buscar reservas"
-          className="w-full sm:w-80 border border-ec-mist rounded-xl px-3 py-2.5 min-h-11 bg-white"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
       </div>
+
+      {query && (
+        <p className="mb-4 text-sm text-ec-slate">
+          Resultados para <strong className="text-ec-ink">{query}</strong> en todas las fechas.{' '}
+          <button type="button" onClick={clearSearch} className="font-bold text-ec-volcano underline underline-offset-2">
+            Volver al día
+          </button>
+        </p>
+      )}
 
       <h2 id="checkin-title" className="sr-only">
         Check-in presencial
@@ -236,20 +268,23 @@ const AdminCheckin = () => {
             <div key={i} className="h-20 bg-ec-mist rounded-xl" />
           ))}
         </div>
-      ) : filtered.length === 0 ? (
+      ) : items.length === 0 ? (
         <p className="text-ec-slate py-10 text-center">
-          {items.length === 0 ? 'No hay reservas para esta fecha.' : 'Ninguna reserva coincide con la búsqueda.'}
+          {query ? 'Ninguna reserva coincide con la búsqueda.' : 'No hay reservas para esta fecha.'}
         </p>
       ) : (
         <ul className="space-y-3">
-          {filtered.map((r) => {
-            const estado = ESTADOS[r.estado] ?? { label: r.estado, className: 'bg-ec-mist text-ec-slate' };
+          {items.map((r) => {
+            const estado = ESTADOS[r.estado_asistencia] ?? { hint: '', className: 'bg-ec-mist text-ec-slate' };
             const open = openId === r.reservation_id;
             return (
               <li key={r.reservation_id} className="rounded-2xl border border-ec-mist bg-white p-4">
                 <div className="flex flex-col md:flex-row md:items-center gap-3">
-                  <div className="flex items-center gap-3 md:w-28 shrink-0">
-                    <span className="text-xl font-extrabold tabular-nums text-ec-ink">{r.hora}</span>
+                  <div className="flex items-center gap-3 md:w-40 shrink-0">
+                    <span className="flex flex-col leading-tight">
+                      <span className="text-xl font-extrabold tabular-nums text-ec-ink">{r.hora}</span>
+                      {query && <span className="text-xs text-ec-slate tabular-nums">{r.fecha}</span>}
+                    </span>
                     <span
                       className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${
                         r.canal === 'BOOKING' ? 'bg-ec-volcano/10 text-ec-volcano' : 'bg-ec-mist text-ec-slate'
@@ -272,10 +307,13 @@ const AdminCheckin = () => {
                     )}
                   </div>
                   <div className="flex items-center gap-3 md:justify-end">
-                    <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${estado.className}`}>
-                      {estado.label}
+                    <span
+                      className={`rounded-full px-2.5 py-0.5 text-xs font-bold tracking-wide ${estado.className}`}
+                      title={estado.hint}
+                    >
+                      {r.estado_asistencia}
                     </span>
-                    {r.estado === 'CONFIRMADA' && !open && (
+                    {r.estado_asistencia === 'PENDIENTE_ASISTENCIA' && !open && (
                       <button
                         type="button"
                         onClick={() => {
@@ -285,7 +323,7 @@ const AdminCheckin = () => {
                         className="btn-primary px-4 py-2.5 text-sm"
                         aria-expanded={open}
                       >
-                        Registrar asistencia
+                        Confirmar asistencia / Check-in
                       </button>
                     )}
                   </div>

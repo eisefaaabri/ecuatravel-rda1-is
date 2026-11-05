@@ -212,9 +212,10 @@ export const AuthService = {
 
 /** Panel del guía o administrador: reservas del día y check-in presencial. */
 export const AdminService = {
-  getReservations: async (fecha) => {
+  /** Sin `q` lista la fecha; con `q` busca por código, cédula o email en todas las fechas. */
+  getReservations: async ({ fecha, q } = {}) => {
     const response = await api.get('/admin/reservas', {
-      params: { fecha },
+      params: q ? { q } : { fecha },
       headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
     });
     return response.data;
