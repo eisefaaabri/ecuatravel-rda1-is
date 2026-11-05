@@ -210,4 +210,22 @@ export const AuthService = {
   },
 };
 
+/** Panel del guía o administrador: reservas del día y check-in presencial. */
+export const AdminService = {
+  getReservations: async (fecha) => {
+    const response = await api.get('/admin/reservas', {
+      params: { fecha },
+      headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
+    });
+    return response.data;
+  },
+
+  checkin: async (reservationId, body) => {
+    const response = await api.post(`/admin/reservas/${reservationId}/checkin`, body, {
+      headers: { 'Idempotency-Key': crypto.randomUUID() },
+    });
+    return response.data;
+  },
+};
+
 export default api;
