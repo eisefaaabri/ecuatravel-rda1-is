@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useSearchParams } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate, Outlet, useSearchParams } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { WishlistProvider } from './context/WishlistContext';
 import { AtraccionesService } from './services/api';
@@ -9,7 +9,11 @@ import HeroSection from './components/HeroSection';
 import TrustStrip from './components/TrustStrip';
 import AttractionGallery from './components/AttractionGallery';
 import AttractionDetail from './components/AttractionDetail';
-import AdminDashboard from './components/AdminDashboard';
+import AdminLayout, { RequireRole } from './components/admin/AdminLayout';
+import AdminCatalog from './components/admin/AdminCatalog';
+import AdminCheckin from './components/admin/AdminCheckin';
+import AdminClientes from './components/admin/AdminClientes';
+import AdminPersonal from './components/admin/AdminPersonal';
 import MyReservations from './components/MyReservations';
 import { IconLayers } from './components/icons/EcuadorIcons';
 import TopoLines from './components/TopoLines';
@@ -297,10 +301,8 @@ const NotFoundPage = () => (
   </div>
 );
 
-const App = () => (
-  <Router>
-    <AuthProvider>
-      <WishlistProvider>
+// Tienda para turistas. El Panel B2B (/admin) tiene su propio layout y menú.
+const StoreLayout = () => (
         <div className="min-h-screen flex flex-col bg-ec-paper font-sans text-ec-ink">
         <a href="#main-content" className="skip-link">
           Saltar al contenido principal
@@ -308,15 +310,7 @@ const App = () => (
         <Navbar />
 
         <main id="main-content" className="flex-grow" tabIndex={-1}>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/experiencias" element={<CatalogPage />} />
-            <Route path="/experiencias/:id" element={<AttractionDetail />} />
-            <Route path="/mis-reservas" element={<MyReservations />} />
-            <Route path="/admin" element={<AdminDashboard key="catalog" />} />
-            <Route path="/admin/reservas" element={<AdminDashboard key="reservas" initialTab="checkin" />} />
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
+          <Outlet />
         </main>
 
         <footer className="relative overflow-hidden bg-ec-ink text-ec-paper/70">
@@ -347,9 +341,31 @@ const App = () => (
           </div>
         </footer>
       </div>
-    </WishlistProvider>
-  </AuthProvider>
-</Router>
+);
+
+const App = () => (
+  <Router>
+    <AuthProvider>
+      <WishlistProvider>
+        <Routes>
+          <Route element={<StoreLayout />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/experiencias" element={<CatalogPage />} />
+            <Route path="/experiencias/:id" element={<AttractionDetail />} />
+            <Route path="/mis-reservas" element={<MyReservations />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Route>
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<RequireRole roles={['ADMIN']}><AdminCatalog /></RequireRole>} />
+            <Route path="reservas" element={<AdminCheckin />} />
+            <Route path="clientes" element={<AdminClientes />} />
+            <Route path="personal" element={<RequireRole roles={['ADMIN']}><AdminPersonal /></RequireRole>} />
+            <Route path="*" element={<Navigate to="/admin" replace />} />
+          </Route>
+        </Routes>
+      </WishlistProvider>
+    </AuthProvider>
+  </Router>
 );
 
 export default App;

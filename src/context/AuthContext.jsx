@@ -32,6 +32,8 @@ export function AuthProvider({ children }) {
       email: payload.email,
       roles,
       isAdmin: roles.includes('ADMIN'),
+      // Personal de la tienda: entra a la zona /admin (el OPERADOR con acceso limitado).
+      isStaff: roles.includes('ADMIN') || roles.includes('OPERADOR'),
     };
   }, [token]);
 
@@ -124,6 +126,7 @@ export function AuthProvider({ children }) {
       session,
       isAuthenticated: Boolean(session),
       isAdmin: Boolean(session?.isAdmin),
+      isStaff: Boolean(session?.isStaff),
       authError,
       loading,
       login,

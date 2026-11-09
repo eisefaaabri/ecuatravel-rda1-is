@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { AdminService } from '../services/api';
+import { AdminService } from '../../services/api';
+import AdminPageHeader from './AdminPageHeader';
 
 const hoyEcuador = () =>
   new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Guayaquil' }).format(new Date());
@@ -184,7 +185,11 @@ const AdminCheckin = () => {
   };
 
   return (
-    <section aria-labelledby="checkin-title">
+    <section>
+      <AdminPageHeader
+        title="Reservas / Check-in"
+        description="Busca la reserva cuando el turista llega al punto de encuentro y confirma su asistencia. Las reservas de Booking se le notifican."
+      />
       <div className="flex flex-col md:flex-row md:items-end gap-3 mb-5">
         <form onSubmit={submitSearch} className="flex flex-col gap-1.5 flex-1" role="search">
           <label htmlFor="checkin-buscar" className="text-sm font-bold text-ec-ink">
@@ -231,10 +236,6 @@ const AdminCheckin = () => {
           </button>
         </p>
       )}
-
-      <h2 id="checkin-title" className="sr-only">
-        Check-in presencial
-      </h2>
 
       {result && (
         <div className="mb-5 rounded-xl border border-ec-andes/30 bg-ec-andes/5 p-4" role="status" aria-live="polite">

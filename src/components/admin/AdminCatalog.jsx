@@ -1,16 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { AtraccionesService } from '../services/api';
-import { useAuth } from '../context/AuthContext';
-import { formatPrice, normalizeAtraccion } from '../utils/atraccion';
-import AuthLoginPanel from './AuthLoginPanel';
-import AdminAttractionModal from './AdminAttractionModal';
-import AdminUsers from './AdminUsers';
-import AdminCheckin from './AdminCheckin';
+import { AtraccionesService } from '../../services/api';
+import { formatPrice, normalizeAtraccion } from '../../utils/atraccion';
+import AdminAttractionModal from '../AdminAttractionModal';
+import AdminPageHeader from './AdminPageHeader';
 
 const PAGE_SIZE = 100;
 
-const AdminDashboard = ({ initialTab = 'catalog' }) => {
-  const { isAuthenticated, isAdmin, session, logout } = useAuth();
+const AdminCatalog = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -18,7 +14,6 @@ const AdminDashboard = ({ initialTab = 'catalog' }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
-  const [activeTab, setActiveTab] = useState(initialTab); // 'catalog', 'checkin' o 'users'
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -38,8 +33,8 @@ const AdminDashboard = ({ initialTab = 'catalog' }) => {
   }, []);
 
   useEffect(() => {
-    if (isAdmin) load();
-  }, [isAdmin, load]);
+    load();
+  }, [load]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -75,66 +70,27 @@ const AdminDashboard = ({ initialTab = 'catalog' }) => {
     }
   };
 
-  if (!isAuthenticated) {
-    return (
-      <div className="section-grid py-12 md:py-16">
-        <div className="max-w-lg mx-auto">
-          <h1 className="text-4xl md:text-5xl leading-tight text-ec-ink mb-2">Panel B2B</h1>
-          <p className="text-ec-slate mb-6">
-            Inicia sesión con una cuenta administradora para gestionar el catálogo.
-          </p>
-          <AuthLoginPanel />
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="section-grid py-20 text-center">
-        <h1 className="text-4xl leading-tight text-ec-ink mb-3">Sin permisos</h1>
-        <p className="text-ec-slate mb-6">
-          La cuenta <strong>{session?.email}</strong> no tiene rol de administrador.
-        </p>
-        <button type="button" onClick={logout} className="btn-secondary px-6 py-3">
-          Cerrar sesión
-        </button>
-      </div>
-    );
-  }
-
   return (
-    <div className="section-grid py-10 md:py-14">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-4xl md:text-5xl leading-tight text-ec-ink">Panel B2B</h1>
-          <p className="text-ec-slate text-sm mt-1">
-            Gestiona la plataforma. Sesión: <strong>{session?.email}</strong>
-          </p>
-        </div>
-        <div className="flex bg-white rounded-xl shadow-sm">
-          <button type="button" onClick={() => setActiveTab('catalog')} className={`px-4 py-2 font-bold rounded-l-xl border border-ec-mist ${activeTab === 'catalog' ? 'bg-ec-mist text-ec-ink' : 'bg-white text-ec-slate hover:bg-ec-mist/50'}`}>Catálogo</button>
-          <button type="button" onClick={() => setActiveTab('checkin')} className={`px-4 py-2 font-bold border border-l-0 border-ec-mist ${activeTab === 'checkin' ? 'bg-ec-mist text-ec-ink' : 'bg-white text-ec-slate hover:bg-ec-mist/50'}`}>Reservas / Check-in</button>
-          <button type="button" onClick={() => setActiveTab('users')} className={`px-4 py-2 font-bold rounded-r-xl border border-l-0 border-ec-mist ${activeTab === 'users' ? 'bg-ec-mist text-ec-ink' : 'bg-white text-ec-slate hover:bg-ec-mist/50'}`}>Usuarios</button>
-        </div>
-        <div className="flex flex-wrap gap-3">
-          {activeTab === 'catalog' && (
-            <>
-              <input
-                type="search"
-                placeholder="Buscar por nombre, aeropuerto o estado"
-                className="w-full sm:w-64 border border-ec-mist rounded-xl px-3 py-3 bg-white"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                aria-label="Buscar atracciones"
-              />
-              <button type="button" onClick={openCreate} className="btn-primary px-5 py-3 shrink-0">
-                Nueva atracción
-              </button>
-            </>
-          )}
-        </div>
-      </div>
+    <section>
+      <AdminPageHeader
+        title="Catálogo"
+        description="Atracciones, cupos por turno y precios. Cada cambio se envía a Booking."
+        actions={
+          <>
+            <input
+              type="search"
+              placeholder="Buscar por nombre, aeropuerto o estado"
+              className="w-full sm:w-64 border border-ec-mist rounded-xl px-3 py-2.5 min-h-11 bg-white"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              aria-label="Buscar atracciones"
+            />
+            <button type="button" onClick={openCreate} className="btn-primary px-5 py-2.5 shrink-0">
+              Nueva atracción
+            </button>
+          </>
+        }
+      />
 
       {error && (
         <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-800 rounded-r-xl" role="alert">
@@ -142,11 +98,7 @@ const AdminDashboard = ({ initialTab = 'catalog' }) => {
         </div>
       )}
 
-      {activeTab === 'users' ? (
-        <AdminUsers />
-      ) : activeTab === 'checkin' ? (
-        <AdminCheckin />
-      ) : loading ? (
+      {loading ? (
         <div className="animate-pulse space-y-3" role="status" aria-live="polite">
           {[0, 1, 2, 3].map((i) => (
             <div key={i} className="h-14 bg-ec-mist rounded-xl" />
@@ -162,7 +114,7 @@ const AdminDashboard = ({ initialTab = 'catalog' }) => {
                 <th className="px-4 py-3 font-bold">Nombre</th>
                 <th className="px-4 py-3 font-bold">Aeropuerto</th>
                 <th className="px-4 py-3 font-bold">Precio</th>
-                <th className="px-4 py-3 font-bold">Capacidad</th>
+                <th className="px-4 py-3 font-bold">Cupo por turno</th>
                 <th className="px-4 py-3 font-bold">Duración</th>
                 <th className="px-4 py-3 font-bold">Estado</th>
                 <th className="px-4 py-3 font-bold text-right">Acciones</th>
@@ -193,11 +145,7 @@ const AdminDashboard = ({ initialTab = 'catalog' }) => {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex justify-end gap-2">
-                        <button
-                          type="button"
-                          onClick={() => openEdit(raw)}
-                          className="btn-secondary px-3 py-2 text-xs"
-                        >
+                        <button type="button" onClick={() => openEdit(raw)} className="btn-secondary px-3 py-2 text-xs">
                           Editar
                         </button>
                         <button
@@ -224,8 +172,8 @@ const AdminDashboard = ({ initialTab = 'catalog' }) => {
         onClose={() => setModalOpen(false)}
         onSaved={load}
       />
-    </div>
+    </section>
   );
 };
 
-export default AdminDashboard;
+export default AdminCatalog;

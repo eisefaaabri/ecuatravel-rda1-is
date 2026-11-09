@@ -23,7 +23,7 @@ const useScrolled = (offset = 24) => {
 
 const Navbar = () => {
   const location = useLocation();
-  const { isAuthenticated, isAdmin, session, logout } = useAuth();
+  const { isAuthenticated, isStaff, session, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const scrolled = useScrolled();
@@ -39,9 +39,10 @@ const Navbar = () => {
   // Sobre el hero de inicio la barra es transparente; al hacer scroll se vuelve sólida.
   const overHero = path === '/' && !scrolled && !mobileOpen;
 
+  // El Panel B2B solo aparece para el personal (ADMIN u OPERADOR) y abre su propia zona.
   const links = [
     ...NAV,
-    ...(isAdmin ? [{ to: '/admin', label: 'Panel B2B', match: (p) => p.startsWith('/admin') }] : []),
+    ...(isStaff ? [{ to: '/admin', label: 'Panel B2B', match: (p) => p.startsWith('/admin') }] : []),
     ...(isAuthenticated
       ? [{ to: '/mis-reservas', label: 'Mis reservas', match: (p) => p.startsWith('/mis-reservas') }]
       : []),

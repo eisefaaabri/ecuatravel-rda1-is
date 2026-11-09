@@ -193,20 +193,56 @@ export const AuthService = {
     });
     return response.data;
   },
+};
 
-  getAllUsers: async () => {
-    const response = await api.get('/auth/users');
+const NO_CACHE = { 'Cache-Control': 'no-cache', Pragma: 'no-cache' };
+
+/** Módulo Clientes del panel: turistas con su facturación y reservas. */
+export const ClientesService = {
+  list: async ({ q, page = 1, limit = 20 } = {}) => {
+    const response = await api.get('/admin/clientes', {
+      params: { ...(q && { q }), page, limit },
+      headers: NO_CACHE,
+    });
     return response.data;
   },
 
-  createUser: async (userData) => {
-    const response = await api.post('/auth/users', userData);
+  get: async (id) => {
+    const response = await api.get(`/admin/clientes/${id}`, { headers: NO_CACHE });
     return response.data;
   },
 
-  updateUserRole: async (id, rol) => {
-    const response = await api.patch(`/auth/users/${id}/role`, { rol });
+  create: async (payload) => {
+    const response = await api.post('/admin/clientes', payload);
     return response.data;
+  },
+};
+
+/** Módulo Personal del panel: administradores y operadores. */
+export const PersonalService = {
+  list: async (q) => {
+    const response = await api.get('/admin/personal', { params: q ? { q } : {}, headers: NO_CACHE });
+    return response.data;
+  },
+
+  create: async (payload) => {
+    const response = await api.post('/admin/personal', payload);
+    return response.data;
+  },
+
+  /** También da acceso de personal a un cliente. */
+  setRole: async (id, rol) => {
+    const response = await api.patch(`/admin/personal/${id}/rol`, { rol });
+    return response.data;
+  },
+
+  setActive: async (id, activo) => {
+    const response = await api.patch(`/admin/personal/${id}/estado`, { activo });
+    return response.data;
+  },
+
+  removeAccess: async (id) => {
+    await api.delete(`/admin/personal/${id}`);
   },
 };
 
@@ -216,7 +252,7 @@ export const AdminService = {
   getReservations: async ({ fecha, q } = {}) => {
     const response = await api.get('/admin/reservas', {
       params: q ? { q } : { fecha },
-      headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
+      headers: NO_CACHE,
     });
     return response.data;
   },
