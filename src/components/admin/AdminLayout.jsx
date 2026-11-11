@@ -6,6 +6,7 @@ import AuthLoginPanel from '../AuthLoginPanel';
 // El operador (guía) solo ve lo que necesita en el punto de encuentro.
 export const ADMIN_NAV = [
   { to: '/admin', label: 'Catálogo', end: true, roles: ['ADMIN'] },
+  { to: '/admin/stock', label: 'Stock en vivo', roles: ['ADMIN', 'OPERADOR'] },
   { to: '/admin/reservas', label: 'Reservas / Check-in', roles: ['ADMIN', 'OPERADOR'] },
   { to: '/admin/clientes', label: 'Clientes', roles: ['ADMIN', 'OPERADOR'] },
   { to: '/admin/personal', label: 'Personal', roles: ['ADMIN'] },

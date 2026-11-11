@@ -86,10 +86,15 @@ const CheckinForm = ({ reserva, onDone, onCancel }) => {
           min={1}
           max={reserva.tickets}
           required
+          aria-describedby={`asis-ayuda-${id}`}
           className={field}
           value={asistentes}
           onChange={(e) => setAsistentes(e.target.value)}
         />
+        <p id={`asis-ayuda-${id}`} className="text-xs text-ec-slate">
+          Máximo {reserva.tickets}. Si llegan más personas, deben comprar otra reserva en Booking o en la web. Si llegan
+          menos, no hay reembolso.
+        </p>
       </div>
       <div className="flex flex-col gap-1.5 sm:col-span-2">
         <label htmlFor={`qr-${id}`} className="text-sm font-bold text-ec-ink">

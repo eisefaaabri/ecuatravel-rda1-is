@@ -257,6 +257,12 @@ export const AdminService = {
     return response.data;
   },
 
+  /** Cupos por atracción y turno en una fecha (panel de stock en vivo). */
+  getStock: async (fecha) => {
+    const response = await api.get('/admin/stock', { params: { fecha }, headers: NO_CACHE });
+    return response.data;
+  },
+
   checkin: async (reservationId, body) => {
     const response = await api.post(`/admin/reservas/${reservationId}/checkin`, body, {
       headers: { 'Idempotency-Key': crypto.randomUUID() },

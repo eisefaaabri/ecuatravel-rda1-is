@@ -215,12 +215,15 @@ const MyReservations = () => {
 
                     {cancelOpenId === r.reservation_id && (
                       <form
-                        className="basis-full flex flex-col sm:flex-row gap-2 pt-1"
+                        className="basis-full flex flex-col sm:flex-row sm:flex-wrap gap-2 pt-1"
                         onSubmit={(e) => {
                           e.preventDefault();
                           handleCancel(r);
                         }}
                       >
+                        <p className="w-full text-xs text-ec-slate">
+                          Al cancelar se liberan tus cupos. Ecuatravel no realiza reembolsos.
+                        </p>
                         <input
                           type="text"
                           required

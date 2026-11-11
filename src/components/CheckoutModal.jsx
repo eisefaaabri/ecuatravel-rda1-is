@@ -419,7 +419,8 @@ const CheckoutModal = ({ atraccion, isOpen, onClose }) => {
                     )}
                   </button>
                   <p className="text-[11px] text-ec-slate text-center mt-2">
-                    Tus datos están protegidos con encriptación de extremo a extremo.
+                    No hay reembolsos por cancelación ni por inasistencia. Tus datos están protegidos con encriptación de
+                    extremo a extremo.
                   </p>
                 </form>
               )}

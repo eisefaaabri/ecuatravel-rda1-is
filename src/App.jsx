@@ -13,6 +13,7 @@ import AdminLayout, { RequireRole } from './components/admin/AdminLayout';
 import AdminCatalog from './components/admin/AdminCatalog';
 import AdminCheckin from './components/admin/AdminCheckin';
 import AdminClientes from './components/admin/AdminClientes';
+import AdminStock from './components/admin/AdminStock';
 import AdminPersonal from './components/admin/AdminPersonal';
 import MyReservations from './components/MyReservations';
 import { IconLayers } from './components/icons/EcuadorIcons';
@@ -358,6 +359,7 @@ const App = () => (
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<RequireRole roles={['ADMIN']}><AdminCatalog /></RequireRole>} />
             <Route path="reservas" element={<AdminCheckin />} />
+            <Route path="stock" element={<AdminStock />} />
             <Route path="clientes" element={<AdminClientes />} />
             <Route path="personal" element={<RequireRole roles={['ADMIN']}><AdminPersonal /></RequireRole>} />
             <Route path="*" element={<Navigate to="/admin" replace />} />
