@@ -5,6 +5,7 @@ import { AtraccionesService } from '../services/api';
 import { formatPrice, normalizeAtraccion, attractionThumbUrl } from '../utils/atraccion';
 import AuthLoginPanel from './AuthLoginPanel';
 import PayReservationModal from './PayReservationModal';
+import CancelReservationModal from './CancelReservationModal';
 
 const STATUS_LABEL = {
   PENDING: 'Pendiente de pago',
@@ -35,10 +36,7 @@ const MyReservations = () => {
   const [notice, setNotice] = useState(null);
 
   const [paying, setPaying] = useState(null);
-  const [cancelOpenId, setCancelOpenId] = useState(null);
-  const [reason, setReason] = useState('');
-  const [cancellingId, setCancellingId] = useState(null);
-  const [cancelError, setCancelError] = useState(null);
+  const [cancelling, setCancelling] = useState(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -105,12 +103,6 @@ const MyReservations = () => {
             <button type="button" onClick={load} className="btn-secondary px-4 py-1.5 text-xs">
               Reintentar
             </button>
-          </div>
-        )}
-
-        {cancelError && (
-          <div className="mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800" role="alert">
-            {cancelError}
           </div>
         )}
 
@@ -188,66 +180,26 @@ const MyReservations = () => {
                     {r.status === 'PENDING' && (
                       <button
                         type="button"
-                        onClick={() => {
-                          setPaying(r);
-                          setCancelError(null);
-                        }}
+                        onClick={() => setPaying(r)}
                         className="btn-primary px-5 py-2.5 text-sm"
                       >
                         Pagar ahora
                       </button>
                     )}
-                    {r.status !== 'CANCELLED' && (
+                    {r.checked_in ? (
+                      <span className="rounded-full bg-ec-andes/10 px-3 py-1.5 text-xs font-bold text-ec-andes">
+                        Check-in realizado (servicio iniciado, no cancelable)
+                      </span>
+                    ) : r.status === 'CANCELLED' ? null : r.canal === 'BOOKING' ? (
+                      <span className="text-xs text-ec-slate">Reserva hecha en Booking: cancélala desde Booking.</span>
+                    ) : (
                       <button
                         type="button"
-                        onClick={() => {
-                          setCancelOpenId((id) => (id === r.reservation_id ? null : r.reservation_id));
-                          setReason('');
-                          setCancelError(null);
-                        }}
-                        disabled={cancellingId === r.reservation_id}
+                        onClick={() => setCancelling(r)}
                         className="btn-secondary px-5 py-2.5 text-sm"
-                        aria-expanded={cancelOpenId === r.reservation_id}
                       >
-                        {cancellingId === r.reservation_id ? 'Cancelando…' : 'Cancelar reserva'}
+                        Cancelar reserva
                       </button>
-                    )}
-
-                    {cancelOpenId === r.reservation_id && (
-                      <form
-                        className="basis-full flex flex-col sm:flex-row sm:flex-wrap gap-2 pt-1"
-                        onSubmit={(e) => {
-                          e.preventDefault();
-                          handleCancel(r);
-                        }}
-                      >
-                        <p className="w-full text-xs text-ec-slate">
-                          Al cancelar se liberan tus cupos. Ecuatravel no realiza reembolsos.
-                        </p>
-                        <input
-                          type="text"
-                          required
-                          minLength={3}
-                          maxLength={200}
-                          placeholder={`Motivo de la cancelación…`}
-                          value={reason}
-                          onChange={(e) => setReason(e.target.value)}
-                          aria-label="Motivo de la cancelación"
-                          className="flex-1 border border-ec-mist rounded-xl px-3 py-2 min-h-11 text-sm focus:border-ec-volcano focus:ring-2 focus:ring-ec-volcano/25"
-                        />
-                        <div className="flex gap-2">
-                          <button type="submit" className="btn-primary px-5 py-2.5 text-sm bg-red-600">
-                            Confirmar
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setCancelOpenId(null)}
-                            className="text-sm font-bold text-ec-slate px-3 py-2 min-h-11"
-                          >
-                            Volver
-                          </button>
-                        </div>
-                      </form>
                     )}
                   </div>
                 </li>
@@ -256,6 +208,23 @@ const MyReservations = () => {
           </ul>
         )}
       </div>
+
+      {cancelling && (
+        <CancelReservationModal
+          reservation={cancelling}
+          atraccionNombre={atrMap.get(cancelling.atraccion_id)?.nombre ?? 'Experiencia'}
+          onClose={() => setCancelling(null)}
+          onCancelled={(res) => {
+            setCancelling(null);
+            setNotice(
+              res?.refund?.status === 'PROCESSED'
+                ? `Reserva cancelada: cupos liberados y reembolso del 100% registrado (${res.refund.refund_id}).`
+                : 'Reserva cancelada: cupos liberados.',
+            );
+            load();
+          }}
+        />
+      )}
 
       {paying && (
         <PayReservationModal
@@ -272,32 +241,6 @@ const MyReservations = () => {
       )}
     </div>
   );
-
-  function handleCancel(r) {
-    if (cancellingId) return;
-    setCancellingId(r.reservation_id);
-    setCancelError(null);
-    const idempotencyKey = crypto.randomUUID();
-    AtraccionesService.cancelReservation(r.reservation_id, reason.trim(), idempotencyKey)
-      .then(() => {
-        setNotice('Reserva cancelada correctamente.');
-        setCancelOpenId(null);
-        setReason('');
-        load();
-      })
-      .catch((err) => {
-        const status = err?.response?.status;
-        if (status === 409 || status === 404) {
-          setCancelOpenId(null);
-          setReason('');
-          load();
-          setNotice('La reserva ya fue procesada; su estado actual está actualizado.');
-        } else {
-          setCancelError(err?.userMessage || 'No se pudo cancelar la reserva.');
-        }
-      })
-      .finally(() => setCancellingId(null));
-  }
 };
 
 export default MyReservations;

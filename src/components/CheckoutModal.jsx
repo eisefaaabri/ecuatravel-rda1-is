@@ -419,8 +419,8 @@ const CheckoutModal = ({ atraccion, isOpen, onClose }) => {
                     )}
                   </button>
                   <p className="text-[11px] text-ec-slate text-center mt-2">
-                    No hay reembolsos por cancelación ni por inasistencia. Tus datos están protegidos con encriptación de
-                    extremo a extremo.
+                    Cancela antes del check-in y recibes el 100%. Si llegan menos personas, no hay reembolso parcial. Tus
+                    datos están protegidos con encriptación de extremo a extremo.
                   </p>
                 </form>
               )}

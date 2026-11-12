@@ -93,7 +93,7 @@ const CheckinForm = ({ reserva, onDone, onCancel }) => {
         />
         <p id={`asis-ayuda-${id}`} className="text-xs text-ec-slate">
           Máximo {reserva.tickets}. Si llegan más personas, deben comprar otra reserva en Booking o en la web. Si llegan
-          menos, no hay reembolso.
+          menos, no hay reembolso parcial.
         </p>
       </div>
       <div className="flex flex-col gap-1.5 sm:col-span-2">
