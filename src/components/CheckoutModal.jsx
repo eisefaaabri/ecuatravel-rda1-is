@@ -100,6 +100,25 @@ const CheckoutModal = ({ atraccion, isOpen, onClose }) => {
     };
   }, [isOpen, a?.id, date]);
 
+  // Silent Background Polling del aforo cada 4 s mientras se elige el turno: solo cambia la
+  // disponibilidad, nunca lo que el cliente ya completó (pasajeros, nombre, turno elegido).
+  useEffect(() => {
+    if (!isOpen || step !== 1 || !a?.id || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return undefined;
+    let vigente = true;
+    const id = setInterval(() => {
+      if (document.visibilityState !== 'visible') return;
+      AtraccionesService.checkAvailability(a.id, date)
+        .then((data) => {
+          if (vigente) setAvailability(data);
+        })
+        .catch(() => {});
+    }, 4000);
+    return () => {
+      vigente = false;
+      clearInterval(id);
+    };
+  }, [isOpen, step, a?.id, date]);
+
   useEffect(() => {
     if (!isOpen) return;
     const onKeyDown = (e) => {
@@ -325,7 +344,13 @@ const CheckoutModal = ({ atraccion, isOpen, onClose }) => {
 
                   {slots && slots.length > 0 && (
                     <fieldset className="flex flex-col gap-1.5">
-                      <legend className="text-sm font-bold text-ec-ink mb-1.5">Turno</legend>
+                      <legend className="flex w-full items-center justify-between text-sm font-bold text-ec-ink mb-1.5">
+                        Turno
+                        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-ec-slate">
+                          <span className="h-2 w-2 rounded-full bg-green-600 motion-safe:animate-pulse" aria-hidden="true" />
+                          Cupos en vivo
+                        </span>
+                      </legend>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                         {slots.map((s) => {
                           const full = s.available_spots <= 0;
@@ -351,7 +376,7 @@ const CheckoutModal = ({ atraccion, isOpen, onClose }) => {
                               />
                               <span className="font-bold tabular-nums">{s.time}</span>
                               <span className="text-xs">
-                                {full ? 'Agotado' : `${s.available_spots} ${s.available_spots === 1 ? 'cupo' : 'cupos'}`}
+                                {full ? 'AGOTADO' : `${s.available_spots} ${s.available_spots === 1 ? 'cupo' : 'cupos'}`}
                               </span>
                             </label>
                           );
