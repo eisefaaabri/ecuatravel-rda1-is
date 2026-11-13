@@ -78,6 +78,7 @@ const CancelReservationModal = ({ reservation, atraccionNombre, onClose, onCance
             </div>
             <ul className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 space-y-1">
               <li>Se anulará la reserva y se liberarán los cupos del turno.</li>
+              <li>Solo se puede cancelar hasta 24 h antes del turno.</li>
               <li>
                 {reservation.status === 'PENDING'
                   ? 'No hay pago que reembolsar.'

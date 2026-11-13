@@ -27,6 +27,10 @@ const CardStatusBadge = ({ status }) => {
   );
 };
 
+// El backend calcula el plazo (24 h antes del turno, hora de Ecuador); se usa su respuesta.
+const puedeCancelar = (r) =>
+  r.cancelable ?? (r.cancelable_until ? Date.now() <= Date.parse(r.cancelable_until) : true);
+
 const MyReservations = () => {
   const { isAuthenticated } = useAuth();
   const [reservations, setReservations] = useState([]);
@@ -190,8 +194,13 @@ const MyReservations = () => {
                       <span className="rounded-full bg-ec-andes/10 px-3 py-1.5 text-xs font-bold text-ec-andes">
                         Check-in realizado (servicio iniciado, no cancelable)
                       </span>
-                    ) : r.status === 'CANCELLED' ? null : r.canal === 'BOOKING' ? (
+                    ) : r.status !== 'CONFIRMED' ? null : r.canal === 'BOOKING' ? (
                       <span className="text-xs text-ec-slate">Reserva hecha en Booking: cancélala desde Booking.</span>
+                    ) : !puedeCancelar(r) ? (
+                      <p className="text-xs text-ec-slate max-w-md text-right">
+                        Cancelación no disponible (menos de 24h antes del inicio de la actividad). La política de
+                        cancelación gratuita aplica hasta 24h antes.
+                      </p>
                     ) : (
                       <button
                         type="button"

@@ -419,8 +419,8 @@ const CheckoutModal = ({ atraccion, isOpen, onClose }) => {
                     )}
                   </button>
                   <p className="text-[11px] text-ec-slate text-center mt-2">
-                    Cancela antes del check-in y recibes el 100%. Si llegan menos personas, no hay reembolso parcial. Tus
-                    datos están protegidos con encriptación de extremo a extremo.
+                    Cancelación gratuita con reembolso del 100% hasta 24 h antes del turno. Si llegan menos personas, no
+                    hay reembolso parcial. Tus datos están protegidos con encriptación de extremo a extremo.
                   </p>
                 </form>
               )}
