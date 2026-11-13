@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { AdminService } from '../../services/api';
 import AdminPageHeader from './AdminPageHeader';
 
@@ -138,6 +138,18 @@ const CheckinForm = ({ reserva, onDone, onCancel }) => {
   );
 };
 
+const REFRESCO_MS = 5000;
+
+// Lo que se ve de cada reserva; si no cambia se conserva el objeto y no se repinta.
+const huella = (r) => [r.estado, r.estado_asistencia, r.checkin_en, r.checkin_por, r.tickets, r.hora].join('|');
+const fusionar = (previas, nuevas) => {
+  const porId = new Map(previas.map((r) => [r.reservation_id, r]));
+  return nuevas.map((n) => {
+    const p = porId.get(n.reservation_id);
+    return p && huella(p) === huella(n) ? p : n;
+  });
+};
+
 const AdminCheckin = () => {
   const [fecha, setFecha] = useState(hoyEcuador);
   const [items, setItems] = useState([]);
@@ -147,22 +159,56 @@ const AdminCheckin = () => {
   const [query, setQuery] = useState('');
   const [openId, setOpenId] = useState(null);
   const [result, setResult] = useState(null);
+  const [aviso, setAviso] = useState('');
+  const actuales = useRef([]);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const payload = await AdminService.getReservations(query ? { q: query } : { fecha });
-      setItems(Array.isArray(payload?.data) ? payload.data : []);
-    } catch (err) {
-      setError(err?.userMessage || err?.message || 'No se pudieron cargar las reservas.');
-    } finally {
-      setLoading(false);
-    }
-  }, [fecha, query]);
+  // isSilent: refresco de fondo, sin skeleton ni banner de error; solo cambian las filas que cambiaron.
+  const load = useCallback(
+    async ({ isSilent = false } = {}) => {
+      if (!isSilent) {
+        setLoading(true);
+        setError(null);
+      }
+      try {
+        const payload = await AdminService.getReservations(query ? { q: query } : { fecha });
+        const nuevas = Array.isArray(payload?.data) ? payload.data : [];
+        if (isSilent) {
+          const previas = new Map(actuales.current.map((r) => [r.reservation_id, r.estado_asistencia]));
+          const cambios = nuevas.filter(
+            (r) => previas.has(r.reservation_id) && previas.get(r.reservation_id) !== r.estado_asistencia,
+          );
+          if (cambios.length) {
+            setAviso(cambios.map((r) => `${r.reservation_code} ahora está ${r.estado_asistencia}.`).join(' '));
+            // Si alguien hizo el check-in o canceló la que se estaba confirmando, se cierra el formulario.
+            setOpenId((id) => (cambios.some((r) => r.reservation_id === id) ? null : id));
+          }
+          setItems((prev) => fusionar(prev, nuevas));
+        } else {
+          setItems(nuevas);
+        }
+      } catch (err) {
+        if (!isSilent) setError(err?.userMessage || err?.message || 'No se pudieron cargar las reservas.');
+      } finally {
+        if (!isSilent) setLoading(false);
+      }
+    },
+    [fecha, query],
+  );
 
   useEffect(() => {
     load();
+  }, [load]);
+
+  useEffect(() => {
+    actuales.current = items;
+  }, [items]);
+
+  // Silent Background Polling cada 5 s: refleja check-ins, cancelaciones y reservas nuevas de Booking.
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (document.visibilityState === 'visible') load({ isSilent: true });
+    }, REFRESCO_MS);
+    return () => clearInterval(id);
   }, [load]);
 
   const submitSearch = (e) => {
@@ -232,6 +278,10 @@ const AdminCheckin = () => {
           />
         </div>
       </div>
+
+      <p className="sr-only" aria-live="polite">
+        {aviso}
+      </p>
 
       {query && (
         <p className="mb-4 text-sm text-ec-slate">
@@ -323,7 +373,7 @@ const AdminCheckin = () => {
                   </div>
                   <div className="flex items-center gap-3 md:justify-end">
                     <span
-                      className={`rounded-full px-2.5 py-0.5 text-xs font-bold tracking-wide ${estado.className}`}
+                      className={`rounded-full px-2.5 py-0.5 text-xs font-bold tracking-wide transition-colors duration-300 ${estado.className}`}
                       title={estado.hint}
                     >
                       {r.estado_asistencia}
