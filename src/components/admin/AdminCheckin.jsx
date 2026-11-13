@@ -16,7 +16,7 @@ const ESTADOS = {
 const AVISO_BOOKING = {
   NOTIFICADO: 'Booking recibió la confirmación de asistencia.',
   REINTENTANDO: 'Booking no respondió; el aviso se reintentará automáticamente.',
-  RECHAZADO: 'Booking rechazó el aviso. Revisa los registros del servidor.',
+  RECHAZADO: 'Booking rechazó el aviso: la asistencia quedó registrada en Ecuatravel, pero no en Booking.',
   NO_CONFIGURADO: 'El aviso a Booking no está configurado en el servidor.',
 };
 
@@ -257,6 +257,15 @@ const AdminCheckin = () => {
               }`}
             >
               {AVISO_BOOKING[result.res.booking_notificacion.estado] ?? 'Estado del aviso a Booking desconocido.'}
+              {result.res.booking_notificacion.estado === 'RECHAZADO' && (
+                <span className="block mt-1 font-normal text-ec-slate">
+                  Respuesta de Booking: HTTP {result.res.booking_notificacion.http_status ?? '—'}
+                  {result.res.booking_notificacion.detalle ? ` · ${result.res.booking_notificacion.detalle}` : ''}
+                  {result.res.booking_notificacion.external_order_id
+                    ? ` (identificador ${result.res.booking_notificacion.external_order_id})`
+                    : ''}
+                </span>
+              )}
             </p>
           )}
         </div>
